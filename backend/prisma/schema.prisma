@@ -1,0 +1,249 @@
+// This is your Prisma schema file for SQLite
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Restaurant {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  logo        String?
+  coverImage  String?
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  mapLink     String?
+  currency    String   @default("INR")
+  timezone    String   @default("Asia/Kolkata")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  adminUsers   AdminUser[]
+  categories   Category[]
+  menuItems    MenuItem[]
+  orders       Order[]
+  reservations Reservation[]
+  reviews      Review[]
+  coupons      Coupon[]
+  customers    Customer[]
+  invoices     Invoice[]
+  settings     RestaurantSettings?
+}
+
+model RestaurantSettings {
+  id             String     @id @default(cuid())
+  restaurantId   String     @unique
+  restaurant     Restaurant @relation(fields: [restaurantId], references: [id])
+  razorpayKeyId  String?
+  razorpaySecret String?
+  twilioSid      String?
+  twilioToken    String?
+  whatsappFrom   String?
+  smtpHost       String?
+  smtpPort       Int?
+  smtpUser       String?
+  smtpPass       String?
+  loyaltyEnabled Boolean    @default(true)
+  pointsPerRupee Float      @default(0.1)
+  pointsValue    Float      @default(0.01)
+  taxPercent     Float      @default(5.0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model AdminUser {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  name         String
+  email        String     @unique
+  password     String
+  role         String     @default("manager") // owner, manager, staff
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Customer {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  name         String
+  email        String
+  phone        String?
+  password     String
+  loyaltyPoints Int       @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  orders       Order[]
+  reviews      Review[]
+  reservations Reservation[]
+
+  @@unique([email, restaurantId])
+}
+
+model Category {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  name         String
+  description  String?
+  image        String?
+  sortOrder    Int        @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  menuItems    MenuItem[]
+}
+
+model MenuItem {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  categoryId   String
+  category     Category   @relation(fields: [categoryId], references: [id])
+  name         String
+  description  String?
+  price        Float
+  originalPrice Float?
+  image        String?
+  isVeg        Boolean    @default(true)
+  isAvailable  Boolean    @default(true)
+  isFeatured   Boolean    @default(false)
+  tags         String?    // comma-separated: "spicy,popular,new"
+  sortOrder    Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  orderItems   OrderItem[]
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  restaurantId  String
+  restaurant    Restaurant  @relation(fields: [restaurantId], references: [id])
+  customerId    String?
+  customer      Customer?   @relation(fields: [customerId], references: [id])
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  orderType     String      @default("delivery") // delivery, dine-in, takeaway
+  status        String      @default("pending") // pending, confirmed, preparing, ready, delivered, cancelled
+  paymentStatus String      @default("pending") // pending, paid, refunded
+  paymentMethod String?     // razorpay, cash
+  razorpayOrderId String?
+  razorpayPaymentId String?
+  subtotal      Float
+  taxAmount     Float       @default(0)
+  discountAmount Float      @default(0)
+  deliveryFee   Float       @default(0)
+  totalAmount   Float
+  couponCode    String?
+  notes         String?
+  address       String?
+  tableNumber   String?
+  loyaltyPointsEarned Int  @default(0)
+  loyaltyPointsUsed   Int  @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  orderItems    OrderItem[]
+  invoice       Invoice?
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  name       String
+  price      Float
+  quantity   Int
+  subtotal   Float
+  notes      String?
+  createdAt  DateTime @default(now())
+}
+
+model Reservation {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  customerId   String?
+  customer     Customer?  @relation(fields: [customerId], references: [id])
+  customerName String
+  customerPhone String
+  customerEmail String?
+  date         String     // YYYY-MM-DD
+  time         String     // HH:MM
+  guests       Int
+  tableNumber  String?
+  status       String     @default("pending") // pending, confirmed, cancelled, completed
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Review {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  customerId   String?
+  customer     Customer?  @relation(fields: [customerId], references: [id])
+  customerName String
+  rating       Int        // 1-5
+  comment      String?
+  isApproved   Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Coupon {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  code         String
+  description  String?
+  type         String     @default("percent") // percent, fixed
+  value        Float
+  minOrder     Float      @default(0)
+  maxDiscount  Float?
+  usageLimit   Int?
+  usedCount    Int        @default(0)
+  isActive     Boolean    @default(true)
+  expiresAt    DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([code, restaurantId])
+}
+
+model Invoice {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  orderId      String     @unique
+  order        Order      @relation(fields: [orderId], references: [id])
+  invoiceNo    String
+  subtotal     Float
+  taxAmount    Float
+  discountAmount Float
+  totalAmount  Float
+  isPaid       Boolean    @default(false)
+  paidAt       DateTime?
+  createdAt    DateTime   @default(now())
+
+  @@unique([invoiceNo, restaurantId])
+}

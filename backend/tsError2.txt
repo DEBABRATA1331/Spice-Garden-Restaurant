@@ -1,0 +1,54 @@
+﻿src/routes/billing.ts(24,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | (InvoiceInvoiceNoRestaurantIdCompoundUniqueInput & string)'.
+  Type 'string[]' is not assignable to type 'string | (InvoiceInvoiceNoRestaurantIdCompoundUniqueInput & string)'.
+    Type 'string[]' is not assignable to type 'InvoiceInvoiceNoRestaurantIdCompoundUniqueInput & string'.
+      Type 'string[]' is missing the following properties from type 'InvoiceInvoiceNoRestaurantIdCompoundUniqueInput': invoiceNo, restaurantId
+src/routes/billing.ts(34,64): error TS2322: Type 'string | string[]' is not assignable to type 'string | (InvoiceInvoiceNoRestaurantIdCompoundUniqueInput & string)'.
+  Type 'string[]' is not assignable to type 'string | (InvoiceInvoiceNoRestaurantIdCompoundUniqueInput & string)'.
+    Type 'string[]' is not assignable to type 'InvoiceInvoiceNoRestaurantIdCompoundUniqueInput & string'.
+      Type 'string[]' is missing the following properties from type 'InvoiceInvoiceNoRestaurantIdCompoundUniqueInput': invoiceNo, restaurantId
+src/routes/coupons.ts(24,62): error TS2322: Type 'string | string[]' is not assignable to type 'string | (CouponCodeRestaurantIdCompoundUniqueInput & string)'.
+  Type 'string[]' is not assignable to type 'string | (CouponCodeRestaurantIdCompoundUniqueInput & string)'.
+    Type 'string[]' is not assignable to type 'CouponCodeRestaurantIdCompoundUniqueInput & string'.
+      Type 'string[]' is missing the following properties from type 'CouponCodeRestaurantIdCompoundUniqueInput': code, restaurantId
+src/routes/coupons.ts(32,47): error TS2322: Type 'string | string[]' is not assignable to type 'string | (CouponCodeRestaurantIdCompoundUniqueInput & string)'.
+  Type 'string[]' is not assignable to type 'string | (CouponCodeRestaurantIdCompoundUniqueInput & string)'.
+    Type 'string[]' is not assignable to type 'CouponCodeRestaurantIdCompoundUniqueInput & string'.
+      Type 'string[]' is missing the following properties from type 'CouponCodeRestaurantIdCompoundUniqueInput': code, restaurantId
+src/routes/menu.ts(27,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Category">'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Category">'.
+src/routes/menu.ts(47,61): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/menu.ts(55,49): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/menu.ts(78,62): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/menu.ts(98,62): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/menu.ts(106,49): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/menu.ts(114,66): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/menu.ts(116,65): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/orders.ts(79,22): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/orders.ts(91,22): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringNullableFilter<"Order">'.
+  Type 'string[]' is not assignable to type 'string | StringNullableFilter<"Order">'.
+src/routes/orders.ts(124,60): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/orders.ts(150,60): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/reservations.ts(20,65): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/reservations.ts(44,64): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/reservations.ts(52,52): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/restaurant.ts(11,22): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/reviews.ts(9,61): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Review">'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Review">'.
+src/routes/reviews.ts(30,62): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/reviews.ts(38,47): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
