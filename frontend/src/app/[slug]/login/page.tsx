@@ -1,12 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { authApi, restaurantApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
-export default function SimpleLoginPage() {
+function SimpleLoginContent() {
     const { slug } = useParams<{ slug: string }>();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -98,5 +98,17 @@ export default function SimpleLoginPage() {
                 </div>
             </motion.div>
         </div>
+    );
+}
+
+export default function SimpleLoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#060608] flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full border-4 border-orange-500 border-t-transparent animate-spin" />
+            </div>
+        }>
+            <SimpleLoginContent />
+        </Suspense>
     );
 }

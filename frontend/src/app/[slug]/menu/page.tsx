@@ -1,12 +1,12 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { menuApi, restaurantApi, couponApi, authApi } from '@/lib/api';
 import { useCart } from '@/lib/cartStore';
 
-export default function MenuPage() {
+function MenuContent() {
     const { slug } = useParams<{ slug: string }>();
     const searchParams = useSearchParams();
     const tableNo = searchParams.get('table');
@@ -214,5 +214,17 @@ export default function MenuPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function MenuPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full border-4 border-orange-500 border-t-transparent animate-spin" />
+            </div>
+        }>
+            <MenuContent />
+        </Suspense>
     );
 }

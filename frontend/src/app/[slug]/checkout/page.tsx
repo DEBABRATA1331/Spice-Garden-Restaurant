@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { authApi, orderApi, couponApi, paymentApi, restaurantApi } from '@/lib/api';
@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 declare const Razorpay: any;
 
-export default function CheckoutPage() {
+function CheckoutContent() {
     const { slug } = useParams<{ slug: string }>();
     const params = useSearchParams();
     const tableNo = params.get('table');
@@ -25,7 +25,7 @@ export default function CheckoutPage() {
         } else {
             setUserLoaded(true);
         }
-    }, []);
+    }, [restaurantId]); // Added restaurantId as dependency if needed
 
     const [form, setForm] = useState({
         name: '',
@@ -67,7 +67,6 @@ export default function CheckoutPage() {
         setLoading(true);
 
         try {
-            // Step 1: Create the order record in DB
             const { data: order } = await orderApi.create({
                 restaurantId,
                 customerName: form.name,
@@ -81,7 +80,6 @@ export default function CheckoutPage() {
                 paymentMethod: paymentMethod === 'cash' ? 'cash' : 'razorpay',
             });
 
-            // CASH / PAY LATER flow
             if (paymentMethod === 'cash') {
                 clearCart();
                 toast.success('Order placed! Please pay at the counter. 🎉');
@@ -89,7 +87,6 @@ export default function CheckoutPage() {
                 return;
             }
 
-            // ONLINE PAYMENT flow (Razorpay)
             await loadRazorpay();
             const { data: rz } = await paymentApi.createOrder({
                 amount: total,
@@ -148,7 +145,7 @@ export default function CheckoutPage() {
                             <input className="input" placeholder="Email (optional)" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
                         </div>
 
-                        {/* Order Type — only Dine-In or Takeaway */}
+                        {/* Order Type */}
                         <div className="card p-6 space-y-4">
                             <h2 className="font-semibold text-lg">Order Type</h2>
                             <div className="grid grid-cols-2 gap-3">
@@ -269,5 +266,17 @@ export default function CheckoutPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function CheckoutPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full border-4 border-orange-500 border-t-transparent animate-spin" />
+            </div>
+        }>
+            <CheckoutContent />
+        </Suspense>
     );
 }
