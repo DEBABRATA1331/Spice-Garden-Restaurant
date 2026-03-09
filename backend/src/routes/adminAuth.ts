@@ -9,9 +9,16 @@ const router = Router();
 router.post('/login', async (req: Request, res: Response) => {
     try {
         const { email, password, role } = req.body;
-        const admin = await prisma.adminUser.findFirst({ where: { email, isActive: true } });
-        if (!admin || !await bcrypt.compare(password, admin.password)) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+        const normalizedPassword = String(password || '');
+
+        if (!normalizedEmail || !normalizedPassword) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+
+        const admin = await prisma.adminUser.findFirst({ where: { email: normalizedEmail, isActive: true } });
+        if (!admin || !await bcrypt.compare(normalizedPassword, admin.password)) {
+            return res.status(401).json({ error: 'Invalid credentials. Please verify email/password or seed the backend demo users.' });
         }
 
         if (role && admin.role !== role) {
@@ -33,6 +40,7 @@ router.post('/login', async (req: Request, res: Response) => {
 router.post('/setup', async (req: Request, res: Response) => {
     try {
         const { setupKey, name, email, password, restaurantName, restaurantSlug, phone, address } = req.body;
+        const normalizedOwnerEmail = String(email || '').trim().toLowerCase();
         if (setupKey !== process.env.SETUP_KEY && setupKey !== 'SETUP_RESTAURANT_2024') {
             return res.status(403).json({ error: 'Invalid setup key' });
         }
@@ -47,7 +55,7 @@ router.post('/setup', async (req: Request, res: Response) => {
         await prisma.restaurantSettings.create({ data: { restaurantId: restaurant.id } });
         const hashed = await bcrypt.hash(password, 10);
         const admin = await prisma.adminUser.create({
-            data: { name, email, password: hashed, restaurantId: restaurant.id, role: 'owner' }
+            data: { name, email: normalizedOwnerEmail, password: hashed, restaurantId: restaurant.id, role: 'owner' }
         });
 
         const waiterPassword = await bcrypt.hash('waiter123', 10);

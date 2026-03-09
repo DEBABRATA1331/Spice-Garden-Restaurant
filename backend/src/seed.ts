@@ -32,14 +32,14 @@ async function main() {
     const password = await bcrypt.hash('admin123', 10);
     await prisma.adminUser.upsert({
         where: { email: 'admin@spicegarden.com' },
-        update: {},
+        update: { name: 'Restaurant Owner', password, restaurantId: restaurant.id, role: 'owner', isActive: true },
         create: { name: 'Restaurant Owner', email: 'admin@spicegarden.com', password, restaurantId: restaurant.id, role: 'owner' }
     });
 
     const waiterPassword = await bcrypt.hash('waiter123', 10);
     await prisma.adminUser.upsert({
         where: { email: 'waiter@spicegarden.com' },
-        update: {},
+        update: { name: 'Demo Waiter', password: waiterPassword, restaurantId: restaurant.id, role: 'staff', isActive: true },
         create: { name: 'Demo Waiter', email: 'waiter@spicegarden.com', password: waiterPassword, restaurantId: restaurant.id, role: 'staff' }
     });
 
@@ -87,6 +87,7 @@ async function main() {
     });
 
     console.log('✅ Seed complete!');
+    console.log('ℹ️ If login fails in production, run: npm run db:seed on backend');
     console.log('📧 Admin login: admin@spicegarden.com / admin123');
     console.log('🧑‍🍳 Waiter login: waiter@spicegarden.com / waiter123');
     console.log('🌐 Restaurant slug: demo');

@@ -19,7 +19,7 @@ function AdminLoginContent() {
         setLoading(true);
         try {
             const { data } = await authApi.adminLogin({
-                email,
+                email: email.trim().toLowerCase(),
                 password,
                 role: isWaiterLogin ? 'staff' : undefined,
             });
