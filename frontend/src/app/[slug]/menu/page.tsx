@@ -115,7 +115,7 @@ function MenuContent() {
                         <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
                             <p className="font-semibold text-red-300 mb-1">Menu data could not be loaded.</p>
                             <p className="text-red-200/90">{loadError}</p>
-                            <p className="text-zinc-400 mt-2">Set <code className="text-orange-300">NEXT_PUBLIC_API_URL</code> to your deployed backend API (example: <code className="text-orange-300">https://your-backend-domain/api</code>).</p>
+                            <p className="text-zinc-400 mt-2">Set <code className="text-orange-300">BACKEND_API_URL</code> (preferred) or <code className="text-orange-300">NEXT_PUBLIC_API_URL</code> in your frontend deployment environment to your backend API base (example: <code className="text-orange-300">https://your-backend-domain/api</code>).</p>
                         </div>
                     )}
 
