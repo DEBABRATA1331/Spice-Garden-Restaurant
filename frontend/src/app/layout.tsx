@@ -6,8 +6,12 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Restaurant Platform",
-  description: "Order food online and book tables at your favorite restaurants",
+  title: "Spice Garden | Restaurant Platform",
+  description: "Order food online, book tables, and earn loyalty points at your favorite restaurants.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
