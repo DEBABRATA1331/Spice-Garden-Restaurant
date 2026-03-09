@@ -36,6 +36,13 @@ async function main() {
         create: { name: 'Restaurant Owner', email: 'admin@spicegarden.com', password, restaurantId: restaurant.id, role: 'owner' }
     });
 
+    const waiterPassword = await bcrypt.hash('waiter123', 10);
+    await prisma.adminUser.upsert({
+        where: { email: 'waiter@spicegarden.com' },
+        update: {},
+        create: { name: 'Demo Waiter', email: 'waiter@spicegarden.com', password: waiterPassword, restaurantId: restaurant.id, role: 'staff' }
+    });
+
     // Categories
     const cats = await Promise.all([
         prisma.category.upsert({ where: { id: 'cat-starter' }, update: {}, create: { id: 'cat-starter', restaurantId: restaurant.id, name: '🥗 Starters', description: 'Light bites to begin your meal', sortOrder: 1 } }),
@@ -81,6 +88,7 @@ async function main() {
 
     console.log('✅ Seed complete!');
     console.log('📧 Admin login: admin@spicegarden.com / admin123');
+    console.log('🧑‍🍳 Waiter login: waiter@spicegarden.com / waiter123');
     console.log('🌐 Restaurant slug: demo');
 }
 

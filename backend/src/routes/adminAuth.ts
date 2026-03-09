@@ -8,10 +8,14 @@ const router = Router();
 // Admin Login
 router.post('/login', async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
         const admin = await prisma.adminUser.findFirst({ where: { email, isActive: true } });
         if (!admin || !await bcrypt.compare(password, admin.password)) {
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        if (role && admin.role !== role) {
+            return res.status(403).json({ error: `This account does not have ${role} access` });
         }
         const restaurant = await prisma.restaurant.findUnique({ where: { id: admin.restaurantId } });
         const token = jwt.sign(
@@ -44,6 +48,17 @@ router.post('/setup', async (req: Request, res: Response) => {
         const hashed = await bcrypt.hash(password, 10);
         const admin = await prisma.adminUser.create({
             data: { name, email, password: hashed, restaurantId: restaurant.id, role: 'owner' }
+        });
+
+        const waiterPassword = await bcrypt.hash('waiter123', 10);
+        await prisma.adminUser.create({
+            data: {
+                name: 'Waiter User',
+                email: `waiter@${restaurantSlug}.com`,
+                password: waiterPassword,
+                restaurantId: restaurant.id,
+                role: 'staff'
+            }
         });
         const token = jwt.sign(
             { adminId: admin.id, restaurantId: restaurant.id, role: 'owner' },

@@ -94,7 +94,7 @@ export const authApi = {
     login: (data: any) => api.post('/auth/login', data),
     loginSimple: (data: { name: string, phone: string, restaurantId: string }) => api.post('/auth/login-simple', data),
     getMe: () => api.get('/auth/me'),
-    adminLogin: (data: any) => api.post('/admin/auth/login', data),
+    adminLogin: (data: { email: string; password: string; role?: 'owner' | 'manager' | 'staff' }) => api.post('/admin/auth/login', data),
     adminSetup: (data: any) => api.post('/admin/auth/setup', data),
     adminGetMe: () => api.get('/admin/auth/me'),
 };
