@@ -16,21 +16,57 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Vercel Deployment (Important)
 
-## Learn More
+If you see errors like:
+- `Backend API is not configured...`
+- Menu/admin requests returning `404` from `/api/...`
 
-To learn more about Next.js, take a look at the following resources:
+then your frontend deployment is missing backend env configuration.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Why this happens
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `.env` files are **not automatically uploaded to Vercel**.
+- Vercel uses environment variables configured in **Project Settings → Environment Variables**.
 
-## Deploy on Vercel
+### Required frontend env vars (on Vercel)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Set at least one of these in the **frontend Vercel project**:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `BACKEND_API_URL` (preferred)
+- `NEXT_PUBLIC_API_URL` (fallback)
+
+Value format should include `/api`, for example:
+
+```env
+BACKEND_API_URL=https://your-backend-domain.com/api
+```
+
+### Root Directory
+
+For this repository layout, set Vercel **Root Directory** to:
+
+```text
+frontend
+```
+
+### After adding env vars
+
+1. Save env vars in Vercel.
+2. Redeploy the frontend (prefer "Redeploy with Clear Build Cache").
+
+---
+
+## Backend notes
+
+If login still fails after backend is reachable, run seed on backend environment once:
+
+```bash
+npm run db:seed
+```
+
+Demo credentials:
+- Admin: `admin@spicegarden.com / admin123`
+- Waiter: `waiter@spicegarden.com / waiter123`
