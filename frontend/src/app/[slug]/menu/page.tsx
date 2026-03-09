@@ -17,6 +17,7 @@ function MenuContent() {
     const [search, setSearch] = useState('');
     const [vegOnly, setVegOnly] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [apiError, setApiError] = useState<string | null>(null);
     const { items: cartItems, addItem, updateQuantity, subtotal, totalItems, removeItem } = useCart();
     const [showCart, setShowCart] = useState(false);
     const [user, setUser] = useState<any>(null);
@@ -36,12 +37,40 @@ function MenuContent() {
             if (localStorage.getItem('customerToken')) {
                 authApi.getMe().then(res => setUser(res.data)).catch(() => localStorage.removeItem('customerToken'));
             }
+        } catch (err: any) {
+            const isNetworkError = err.code === 'ERR_NETWORK' || err.message === 'Network Error';
+            if (isNetworkError) {
+                setApiError('Cannot connect to the backend API. Make sure NEXT_PUBLIC_API_URL is set correctly in your Vercel environment variables.');
+            } else if (err.response?.status === 404) {
+                setApiError(`Restaurant "${slug}" not found. Check the slug is correct.`);
+            } else {
+                setApiError(err.response?.data?.error || err.message || 'Failed to load menu data.');
+            }
         } finally { setLoading(false); }
     }, [slug]);
 
     useEffect(() => { load(); }, [load]);
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 rounded-full border-4 border-orange-500 border-t-transparent animate-spin" /></div>;
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]"><div className="w-12 h-12 rounded-full border-4 border-orange-500 border-t-transparent animate-spin" /></div>;
+
+    if (apiError) return (
+        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+            <div className="max-w-md w-full card p-8 text-center space-y-4">
+                <div className="text-4xl">⚠️</div>
+                <h1 className="text-xl font-bold text-white">Menu data could not be loaded</h1>
+                <p className="text-zinc-400 text-sm leading-relaxed">{apiError}</p>
+                <div className="bg-zinc-800/50 rounded-xl p-4 text-left text-xs text-zinc-500 space-y-2">
+                    <p className="font-semibold text-zinc-400">To fix this:</p>
+                    <p>1. Deploy the backend (e.g. on <a href="https://render.com" target="_blank" className="text-orange-400 underline">Render.com</a> — free)</p>
+                    <p>2. Copy your backend&apos;s public URL</p>
+                    <p>3. In <strong className="text-zinc-300">Vercel → Project → Settings → Environment Variables</strong> add:</p>
+                    <code className="block bg-zinc-900 rounded p-2 text-orange-400">NEXT_PUBLIC_API_URL = https://your-backend.onrender.com/api</code>
+                    <p>4. Redeploy the Vercel project</p>
+                </div>
+                <button onClick={() => { setApiError(null); setLoading(true); load(); }} className="btn-primary px-6 py-2 text-sm">↺ Retry</button>
+            </div>
+        </div>
+    );
 
     const filtered = items.filter(item => {
         if (activeCategory !== 'all' && item.categoryId !== activeCategory) return false;
