@@ -17,12 +17,14 @@ function MenuContent() {
     const [search, setSearch] = useState('');
     const [vegOnly, setVegOnly] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const { items: cartItems, addItem, updateQuantity, subtotal, totalItems, removeItem } = useCart();
     const [showCart, setShowCart] = useState(false);
     const [user, setUser] = useState<any>(null);
 
     const load = useCallback(async () => {
         try {
+            setLoadError(null);
             const r = await restaurantApi.getBySlug(slug);
             setRestaurant(r.data);
             const [cats, itms] = await Promise.all([
@@ -36,6 +38,12 @@ function MenuContent() {
             if (localStorage.getItem('customerToken')) {
                 authApi.getMe().then(res => setUser(res.data)).catch(() => localStorage.removeItem('customerToken'));
             }
+        } catch (e: any) {
+            const err = e?.response?.data?.error || e?.message || 'Failed to load menu data';
+            setLoadError(err);
+            setCategories([]);
+            setItems([]);
+            toast.error('Could not load menu. Please check backend API connection.');
         } finally { setLoading(false); }
     }, [slug]);
 
@@ -102,6 +110,20 @@ function MenuContent() {
                             🟢 Veg Only
                         </button>
                     </div>
+
+                    {loadError && (
+                        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
+                            <p className="font-semibold text-red-300 mb-1">Menu data could not be loaded.</p>
+                            <p className="text-red-200/90">{loadError}</p>
+                            <p className="text-zinc-400 mt-2">Set <code className="text-orange-300">NEXT_PUBLIC_API_URL</code> to your deployed backend API (example: <code className="text-orange-300">https://your-backend-domain/api</code>).</p>
+                        </div>
+                    )}
+
+                    {!loadError && categories.length === 0 && (
+                        <div className="mb-6 rounded-xl border border-zinc-700 bg-zinc-900/60 p-4 text-sm text-zinc-400">
+                            No categories found for this restaurant yet.
+                        </div>
+                    )}
 
                     {/* Mobile category scroll */}
                     <div className="lg:hidden flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">

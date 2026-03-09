@@ -1,8 +1,25 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const inferApiUrl = () => {
+    if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+
+    if (typeof window !== 'undefined') {
+        const host = window.location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:4000/api';
+        return '/api';
+    }
+
+    return 'http://localhost:4000/api';
+};
+
+const API_URL = inferApiUrl();
 
 const api = axios.create({ baseURL: API_URL });
+
+if (typeof window !== 'undefined' && !process.env.NEXT_PUBLIC_API_URL) {
+    // Helps debugging empty UI in production when backend URL was not configured.
+    console.warn('[API] NEXT_PUBLIC_API_URL is not set. Using fallback baseURL:', API_URL);
+}
 
 api.interceptors.request.use((config) => {
     if (typeof window !== 'undefined') {
