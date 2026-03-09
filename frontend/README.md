@@ -52,6 +52,8 @@ For this repository layout, set Vercel **Root Directory** to:
 frontend
 ```
 
+If you instead deploy from repository root, keep the root `vercel.json` committed so Vercel can route/build the frontend app correctly.
+
 ### After adding env vars
 
 1. Save env vars in Vercel.
