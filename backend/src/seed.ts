@@ -29,11 +29,19 @@ async function main() {
     });
 
     // Admin user
-    const password = await bcrypt.hash('admin123', 10);
+    const adminPassword = await bcrypt.hash('admin123', 10);
     await prisma.adminUser.upsert({
         where: { email: 'admin@spicegarden.com' },
-        update: {},
-        create: { name: 'Restaurant Owner', email: 'admin@spicegarden.com', password, restaurantId: restaurant.id, role: 'owner' }
+        update: { password: adminPassword, isActive: true },
+        create: { name: 'Restaurant Owner', email: 'admin@spicegarden.com', password: adminPassword, restaurantId: restaurant.id, role: 'owner' }
+    });
+
+    // Waiter user
+    const waiterPassword = await bcrypt.hash('waiter123', 10);
+    await prisma.adminUser.upsert({
+        where: { email: 'waiter@spicegarden.com' },
+        update: { password: waiterPassword, isActive: true },
+        create: { name: 'Demo Waiter', email: 'waiter@spicegarden.com', password: waiterPassword, restaurantId: restaurant.id, role: 'waiter' }
     });
 
     // Categories
@@ -81,6 +89,7 @@ async function main() {
 
     console.log('✅ Seed complete!');
     console.log('📧 Admin login: admin@spicegarden.com / admin123');
+    console.log('📧 Waiter login: waiter@spicegarden.com / waiter123');
     console.log('🌐 Restaurant slug: demo');
 }
 

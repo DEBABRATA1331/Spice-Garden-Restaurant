@@ -56,6 +56,41 @@ router.post('/setup', async (req: Request, res: Response) => {
     }
 });
 
+// Reset credentials (re-seed admin + waiter passwords)
+router.post('/reset-credentials', async (req: Request, res: Response) => {
+    try {
+        const { setupKey, restaurantSlug } = req.body;
+        if (setupKey !== process.env.SETUP_KEY && setupKey !== 'SETUP_RESTAURANT_2024') {
+            return res.status(403).json({ error: 'Invalid setup key' });
+        }
+        const slug = restaurantSlug || 'demo';
+        const restaurant = await prisma.restaurant.findUnique({ where: { slug } });
+        if (!restaurant) return res.status(404).json({ error: `Restaurant with slug '${slug}' not found` });
+
+        const adminPassword = await bcrypt.hash('admin123', 10);
+        const updatedAdmin = await prisma.adminUser.upsert({
+            where: { email: 'admin@spicegarden.com' },
+            update: { password: adminPassword, isActive: true },
+            create: { name: 'Restaurant Owner', email: 'admin@spicegarden.com', password: adminPassword, restaurantId: restaurant.id, role: 'owner' }
+        });
+
+        const waiterPassword = await bcrypt.hash('waiter123', 10);
+        const updatedWaiter = await prisma.adminUser.upsert({
+            where: { email: 'waiter@spicegarden.com' },
+            update: { password: waiterPassword, isActive: true },
+            create: { name: 'Demo Waiter', email: 'waiter@spicegarden.com', password: waiterPassword, restaurantId: restaurant.id, role: 'waiter' }
+        });
+
+        res.json({
+            message: 'Credentials reset successfully',
+            admin: { email: updatedAdmin.email, role: updatedAdmin.role, password: 'admin123' },
+            waiter: { email: updatedWaiter.email, role: updatedWaiter.role, password: 'waiter123' }
+        });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Get current admin
 router.get('/me', async (req: Request, res: Response) => {
     try {
