@@ -1,22 +1,9 @@
 import axios from 'axios';
 
-// Support both server-side BACKEND_API_URL and client-side NEXT_PUBLIC_API_URL
-const API_URL =
-    process.env.BACKEND_API_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    'http://localhost:4000/api';
-
-// Warn in production if the env var is not set
-if (typeof window !== 'undefined' && !process.env.NEXT_PUBLIC_API_URL) {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (!isLocalhost) {
-        console.error(
-            '⚠️ NEXT_PUBLIC_API_URL is not set! API calls will fail.\n' +
-            'Go to Vercel → Project Settings → Environment Variables and add:\n' +
-            'NEXT_PUBLIC_API_URL = https://your-backend-url/api'
-        );
-    }
-}
+// Use relative path — everything is same-origin when hosted together on Vercel
+const API_URL = typeof window !== 'undefined'
+    ? '/api'  // browser: relative path
+    : (process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}` : 'http://localhost:3000/api'); // SSR fallback
 
 const api = axios.create({ baseURL: API_URL });
 
