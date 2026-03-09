@@ -10,10 +10,20 @@ export async function POST(req: NextRequest) {
         const file = formData.get('image') as File;
         if (!file) return Response.json({ error: 'No file uploaded' }, { status: 400 });
 
-        // Convert to base64 data URL (works on Vercel without filesystem)
+        // Convert to base64 data URL (works on Vercel without filesystem, Node or Edge)
         const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const base64 = buffer.toString('base64');
+
+        const toBase64 = (data: ArrayBuffer): string => {
+            if (typeof Buffer !== 'undefined') return Buffer.from(data).toString('base64');
+            let binary = '';
+            const typedArr = new Uint8Array(data);
+            for (let i = 0; i < typedArr.byteLength; i++) {
+                binary += String.fromCharCode(typedArr[i]);
+            }
+            return btoa(binary);
+        };
+
+        const base64 = toBase64(bytes);
         const mimeType = file.type || 'image/jpeg';
         const dataUrl = `data:${mimeType};base64,${base64}`;
 

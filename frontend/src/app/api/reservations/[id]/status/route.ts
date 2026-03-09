@@ -8,7 +8,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         if (!payload) return unauthorized();
         const { id } = await params;
         const { status, tableNumber } = await req.json();
-        const rsv = await prisma.reservation.update({ where: { id }, data: { status, tableNumber } });
+        const rsv = await prisma.reservation.update({ where: { id, restaurantId: payload.restaurantId }, data: { status, tableNumber } });
         return Response.json(rsv);
     } catch (err: any) {
         return serverError(err);

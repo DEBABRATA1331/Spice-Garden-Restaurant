@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 export async function POST(req: NextRequest) {
     try {
         const { setupKey, restaurantSlug } = await req.json();
-        if (setupKey !== process.env.SETUP_KEY && setupKey !== 'SETUP_RESTAURANT_2024') {
+        if (!process.env.SETUP_KEY || setupKey !== process.env.SETUP_KEY) {
             return Response.json({ error: 'Invalid setup key' }, { status: 403 });
         }
         const slug = restaurantSlug || 'demo';

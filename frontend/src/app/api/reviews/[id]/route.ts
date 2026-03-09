@@ -7,7 +7,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
         const payload = verifyAdminToken(req);
         if (!payload) return unauthorized();
         const { id } = await params;
-        await prisma.review.delete({ where: { id } });
+        await prisma.review.delete({ where: { id, restaurantId: payload.restaurantId } });
         return Response.json({ success: true });
     } catch (err: any) { return serverError(err); }
 }

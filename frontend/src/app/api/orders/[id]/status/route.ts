@@ -8,7 +8,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         if (!payload) return unauthorized();
         const { id } = await params;
         const { status } = await req.json();
-        const order = await prisma.order.update({ where: { id }, data: { status } });
+        const order = await prisma.order.update({ where: { id, restaurantId: payload.restaurantId }, data: { status } });
 
         if (status === 'delivered' && order.customerId && order.loyaltyPointsEarned > 0) {
             await prisma.customer.update({ where: { id: order.customerId }, data: { loyaltyPoints: { increment: order.loyaltyPointsEarned } } });
