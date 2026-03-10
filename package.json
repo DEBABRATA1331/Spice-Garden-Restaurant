@@ -1,0 +1,11 @@
+{
+    "name": "restaurant-saas-monorepo",
+    "private": true,
+    "scripts": {
+        "install": "cd frontend && npm install --legacy-peer-deps",
+        "build": "cd frontend && npx prisma generate && npm run build"
+    },
+    "dependencies": {
+        "next": "^15.1.0"
+    }
+}
