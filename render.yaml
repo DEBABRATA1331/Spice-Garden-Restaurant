@@ -20,8 +20,5 @@ services:
       - key: SETUP_KEY
         sync: false
       - key: FRONTEND_URL
-        fromService:
-          type: web
-          name: spice-garden-frontend
-          envVarKey: RENDER_EXTERNAL_URL
+        sync: false
 
