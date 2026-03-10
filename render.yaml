@@ -23,7 +23,7 @@ services:
         fromService:
           type: web
           name: spice-garden-frontend
-          envVar: RENDER_EXTERNAL_URL
+          envVarKey: RENDER_EXTERNAL_URL
 
   # ─── FRONTEND ─────────────────────────────────────────────────
   - type: web
@@ -39,4 +39,4 @@ services:
         fromService:
           type: web
           name: spice-garden-backend
-          envVar: RENDER_EXTERNAL_URL
+          envVarKey: RENDER_EXTERNAL_URL
