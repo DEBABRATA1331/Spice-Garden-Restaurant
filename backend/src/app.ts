@@ -51,8 +51,10 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/qr', qrRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 
-app.listen(PORT, () => {
-    console.log(`🚀 Restaurant API running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Restaurant API running on http://localhost:${PORT}`);
+    });
+}
 
 export default app;

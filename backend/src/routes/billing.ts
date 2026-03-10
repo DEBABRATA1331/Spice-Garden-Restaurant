@@ -31,7 +31,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 // Mark invoice as paid
 router.patch('/:id/pay', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        const invoice = await prisma.invoice.update({ where: { id: (req.params.id as string) }, data: { isPaid: true, paidAt: new Date() } });
+        const id = req.params.id as string;
+        const existing = await prisma.invoice.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
+        const invoice = await prisma.invoice.update({ where: { id }, data: { isPaid: true, paidAt: new Date() } });
         await prisma.order.update({ where: { id: invoice.orderId }, data: { paymentStatus: 'paid' } });
         res.json(invoice);
     } catch (err: any) { res.status(500).json({ error: err.message }); }

@@ -10,10 +10,22 @@ router.get('/admin/all', authenticateAdmin, async (req: AdminRequest, res: Respo
     res.json(coupons);
 });
 
+// Shared helper to create a coupon for a restaurant
+export const createCoupon = async (restaurantId: string, body: any) => {
+    return prisma.coupon.create({
+        data: {
+            ...body,
+            restaurantId,
+            value: parseFloat(body.value),
+            minOrder: parseFloat(body.minOrder || '0')
+        }
+    });
+};
+
 // Create coupon
 router.post('/', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        const coupon = await prisma.coupon.create({ data: { ...req.body, restaurantId: req.restaurantId, value: parseFloat(req.body.value), minOrder: parseFloat(req.body.minOrder || '0') } });
+        const coupon = await createCoupon(req.restaurantId!, req.body);
         res.json(coupon);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
@@ -21,7 +33,7 @@ router.post('/', authenticateAdmin, async (req: AdminRequest, res: Response) => 
 // Update coupon
 router.put('/:id', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        const coupon = await prisma.coupon.update({ where: { id: (req.params.id as string) }, data: req.body });
+        const coupon = await prisma.coupon.update({ where: { id: (req.params.id as string), restaurantId: req.restaurantId }, data: req.body });
         res.json(coupon);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
@@ -29,7 +41,7 @@ router.put('/:id', authenticateAdmin, async (req: AdminRequest, res: Response) =
 // Delete coupon
 router.delete('/:id', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        await prisma.coupon.delete({ where: { id: (req.params.id as string) } });
+        await prisma.coupon.delete({ where: { id: (req.params.id as string), restaurantId: req.restaurantId } });
         res.json({ success: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });

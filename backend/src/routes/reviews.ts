@@ -27,7 +27,10 @@ router.get('/admin/all', authenticateAdmin, async (req: AdminRequest, res: Respo
 // Approve/reject review
 router.patch('/:id/approve', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        const review = await prisma.review.update({ where: { id: (req.params.id as string) }, data: { isApproved: req.body.isApproved } });
+        const id = req.params.id as string;
+        const existing = await prisma.review.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
+        const review = await prisma.review.update({ where: { id }, data: { isApproved: req.body.isApproved } });
         res.json(review);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
@@ -35,7 +38,10 @@ router.patch('/:id/approve', authenticateAdmin, async (req: AdminRequest, res: R
 // Delete review
 router.delete('/:id', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        await prisma.review.delete({ where: { id: (req.params.id as string) } });
+        const id = req.params.id as string;
+        const existing = await prisma.review.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
+        await prisma.review.delete({ where: { id } });
         res.json({ success: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });

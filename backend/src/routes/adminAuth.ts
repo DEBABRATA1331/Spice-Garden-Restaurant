@@ -29,7 +29,7 @@ router.post('/login', async (req: Request, res: Response) => {
 router.post('/setup', async (req: Request, res: Response) => {
     try {
         const { setupKey, name, email, password, restaurantName, restaurantSlug, phone, address } = req.body;
-        if (setupKey !== process.env.SETUP_KEY && setupKey !== 'SETUP_RESTAURANT_2024') {
+        if (!process.env.SETUP_KEY || setupKey !== process.env.SETUP_KEY) {
             return res.status(403).json({ error: 'Invalid setup key' });
         }
         // Check if slug is taken
@@ -60,7 +60,7 @@ router.post('/setup', async (req: Request, res: Response) => {
 router.post('/reset-credentials', async (req: Request, res: Response) => {
     try {
         const { setupKey, restaurantSlug } = req.body;
-        if (setupKey !== process.env.SETUP_KEY && setupKey !== 'SETUP_RESTAURANT_2024') {
+        if (!process.env.SETUP_KEY || setupKey !== process.env.SETUP_KEY) {
             return res.status(403).json({ error: 'Invalid setup key' });
         }
         const slug = restaurantSlug || 'demo';

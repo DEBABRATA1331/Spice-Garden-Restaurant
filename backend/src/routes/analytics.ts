@@ -23,11 +23,16 @@ router.get('/dashboard', authenticateAdmin, async (req: AdminRequest, res: Respo
         ]);
 
         // Revenue last 30 days
-        const dailyRevenue = await prisma.order.groupBy({
-            by: ['createdAt'],
+        const recentPaidOrders = await prisma.order.findMany({
             where: { restaurantId, paymentStatus: 'paid', createdAt: { gte: thirtyDaysAgo } },
-            _sum: { totalAmount: true }
+            select: { createdAt: true, totalAmount: true }
         });
+        const dailyRevenueMap = recentPaidOrders.reduce((acc: any, order) => {
+            const dateStr = order.createdAt.toISOString().split('T')[0];
+            acc[dateStr] = (acc[dateStr] || 0) + (order.totalAmount || 0);
+            return acc;
+        }, {});
+        const dailyRevenue = Object.entries(dailyRevenueMap).map(([date, total]) => ({ date, total }));
 
         // Popular dishes
         const popularDishes = await prisma.orderItem.groupBy({

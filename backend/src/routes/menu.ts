@@ -44,7 +44,10 @@ router.post('/categories', authenticateAdmin, async (req: AdminRequest, res: Res
 // Update category
 router.put('/categories/:id', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        const cat = await prisma.category.update({ where: { id: (req.params.id as string) }, data: req.body });
+        const id = req.params.id as string;
+        const existing = await prisma.category.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
+        const cat = await prisma.category.update({ where: { id }, data: req.body });
         res.json(cat);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
@@ -52,7 +55,10 @@ router.put('/categories/:id', authenticateAdmin, async (req: AdminRequest, res: 
 // Delete category
 router.delete('/categories/:id', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        await prisma.category.delete({ where: { id: (req.params.id as string) } });
+        const id = req.params.id as string;
+        const existing = await prisma.category.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
+        await prisma.category.delete({ where: { id } });
         res.json({ success: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
@@ -92,10 +98,13 @@ router.post('/items', authenticateAdmin, async (req: AdminRequest, res: Response
 // Update menu item
 router.put('/items/:id', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
+        const id = req.params.id as string;
+        const existing = await prisma.menuItem.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
         const data = { ...req.body };
         if (data.price) data.price = parseFloat(data.price);
         if (data.originalPrice) data.originalPrice = parseFloat(data.originalPrice);
-        const item = await prisma.menuItem.update({ where: { id: (req.params.id as string) }, data });
+        const item = await prisma.menuItem.update({ where: { id }, data });
         res.json(item);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
@@ -103,7 +112,10 @@ router.put('/items/:id', authenticateAdmin, async (req: AdminRequest, res: Respo
 // Delete menu item
 router.delete('/items/:id', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        await prisma.menuItem.delete({ where: { id: (req.params.id as string) } });
+        const id = req.params.id as string;
+        const existing = await prisma.menuItem.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
+        await prisma.menuItem.delete({ where: { id } });
         res.json({ success: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
@@ -111,9 +123,10 @@ router.delete('/items/:id', authenticateAdmin, async (req: AdminRequest, res: Re
 // Toggle availability
 router.patch('/items/:id/toggle', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        const item = await prisma.menuItem.findUnique({ where: { id: (req.params.id as string) } });
-        if (!item) return res.status(404).json({ error: 'Not found' });
-        const updated = await prisma.menuItem.update({ where: { id: (req.params.id as string) }, data: { isAvailable: !item.isAvailable } });
+        const id = req.params.id as string;
+        const item = await prisma.menuItem.findUnique({ where: { id } });
+        if (!item || item.restaurantId !== req.restaurantId) return res.status(404).json({ error: 'Not found or unauthorized' });
+        const updated = await prisma.menuItem.update({ where: { id }, data: { isAvailable: !item.isAvailable } });
         res.json(updated);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });

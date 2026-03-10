@@ -40,8 +40,11 @@ router.get('/admin/all', authenticateAdmin, async (req: AdminRequest, res: Respo
 // Admin: Update reservation status
 router.patch('/:id/status', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
+        const id = req.params.id as string;
+        const existing = await prisma.reservation.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
         const { status, tableNumber } = req.body;
-        const rsv = await prisma.reservation.update({ where: { id: (req.params.id as string) }, data: { status, tableNumber } });
+        const rsv = await prisma.reservation.update({ where: { id }, data: { status, tableNumber } });
         res.json(rsv);
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
@@ -49,7 +52,10 @@ router.patch('/:id/status', authenticateAdmin, async (req: AdminRequest, res: Re
 // Admin: Delete reservation
 router.delete('/:id', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
-        await prisma.reservation.delete({ where: { id: (req.params.id as string) } });
+        const id = req.params.id as string;
+        const existing = await prisma.reservation.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
+        await prisma.reservation.delete({ where: { id } });
         res.json({ success: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });

@@ -120,8 +120,11 @@ router.get('/admin/all', authenticateAdmin, async (req: AdminRequest, res: Respo
 // Update order status (admin)
 router.patch('/:id/status', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
+        const id = req.params.id as string;
+        const existing = await prisma.order.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
         const { status } = req.body;
-        const order = await prisma.order.update({ where: { id: (req.params.id as string) }, data: { status } });
+        const order = await prisma.order.update({ where: { id }, data: { status } });
 
         // Award loyalty points on delivery
         if (status === 'delivered' && order.customerId && order.loyaltyPointsEarned > 0) {
@@ -147,7 +150,7 @@ router.patch('/:id/status', authenticateAdmin, async (req: AdminRequest, res: Re
 router.post('/:id/invoice', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
         const order = await prisma.order.findUnique({ where: { id: (req.params.id as string) } });
-        if (!order) return res.status(404).json({ error: 'Order not found' });
+        if (!order || order.restaurantId !== req.restaurantId) return res.status(404).json({ error: 'Order not found or unauthorized' });
 
         const existing = await prisma.invoice.findUnique({ where: { orderId: order.id } });
         if (existing) return res.json(existing);
