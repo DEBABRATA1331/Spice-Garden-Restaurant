@@ -51,9 +51,9 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/qr', qrRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' || process.env.RENDER) {
     app.listen(PORT, () => {
-        console.log(`🚀 Restaurant API running on http://localhost:${PORT}`);
+        console.log(`🚀 Restaurant API running on port ${PORT}`);
     });
 }
 

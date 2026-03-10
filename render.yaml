@@ -1,0 +1,42 @@
+services:
+  # ─── BACKEND ──────────────────────────────────────────────────
+  - type: web
+    name: spice-garden-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # The database URL must be configured in Render Dashboard
+      - key: DATABASE_URL
+        sync: false
+      # Auto-generate secure secrets on first deploy
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ADMIN_SECRET
+        generateValue: true
+      - key: SETUP_KEY
+        sync: false
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: spice-garden-frontend
+          envVar: RENDER_EXTERNAL_URL
+
+  # ─── FRONTEND ─────────────────────────────────────────────────
+  - type: web
+    name: spice-garden-frontend
+    env: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: spice-garden-backend
+          envVar: RENDER_EXTERNAL_URL
