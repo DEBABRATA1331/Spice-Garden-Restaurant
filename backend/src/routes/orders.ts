@@ -146,6 +146,30 @@ router.patch('/:id/status', authenticateAdmin, async (req: AdminRequest, res: Re
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
+// Update order payment status (admin)
+router.patch('/:id/payment', authenticateAdmin, async (req: AdminRequest, res: Response) => {
+    try {
+        const id = req.params.id as string;
+        const existing = await prisma.order.findUnique({ where: { id } });
+        if (!existing || existing.restaurantId !== req.restaurantId) return res.status(403).json({ error: 'Unauthorized' });
+
+        const { paymentStatus } = req.body;
+        const order = await prisma.order.update({ where: { id }, data: { paymentStatus } });
+
+        // Auto-mark generated invoice as paid
+        if (paymentStatus === 'paid') {
+            const invoice = await prisma.invoice.findUnique({ where: { orderId: order.id } });
+            if (invoice) {
+                await prisma.invoice.update({
+                    where: { id: invoice.id },
+                    data: { isPaid: true, paidAt: new Date() }
+                });
+            }
+        }
+        res.json(order);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
 // Manual Invoice Generation
 router.post('/:id/invoice', authenticateAdmin, async (req: AdminRequest, res: Response) => {
     try {
