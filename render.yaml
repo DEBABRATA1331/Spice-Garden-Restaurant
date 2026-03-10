@@ -25,18 +25,3 @@ services:
           name: spice-garden-frontend
           envVarKey: RENDER_EXTERNAL_URL
 
-  # ─── FRONTEND ─────────────────────────────────────────────────
-  - type: web
-    name: spice-garden-frontend
-    env: node
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_API_URL
-        fromService:
-          type: web
-          name: spice-garden-backend
-          envVarKey: RENDER_EXTERNAL_URL
